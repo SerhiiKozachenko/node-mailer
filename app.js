@@ -2,6 +2,16 @@ var express = require('express'),
 app = express(),
 port = process.env.PORT || 1111;
 
+var cors = require('cors');
+
+var whitelist = ['https://grievoushead.github.io', 'http://grievoushead.github.io'];
+var corsOptions = {
+  origin: function(origin, callback){
+    var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+    callback(null, originIsWhitelisted);
+  }
+};
+
 //app.use(express.static(__dirname + '/'));
 console.log('express server listenning on port: %d', port);
 var nodemailer = require('nodemailer');
@@ -10,7 +20,7 @@ app.get('/', function(req, res) {
   res.send('how are you doing?');
 });
 
-app.get('/:to/:subject/:message', function(req, res) {
+app.get('/:to/:subject/:message', cors(corsOptions), function(req, res) {
   var url = require('url');
   var url_parts = url.parse(req.url, true);
   var query = url_parts.query;
