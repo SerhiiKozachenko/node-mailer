@@ -43,7 +43,7 @@ var mailOptions = {
     from: 'Hop Hey ✔ <HopHey@gmail.com>', // sender address
     to: to, // list of receivers
     subject: subject, // Subject line
-    text: message, // plaintext body
+    text: msg, // plaintext body
     //html: '<b>Hello world ✔</b>' // html body
 };
 
