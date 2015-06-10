@@ -10,11 +10,13 @@ app.get('/', function(req, res) {
   res.send('how are you doing?');
 });
 
-app.get('/:to', function(req, res) {
+app.get('/:to/:subject/:message', function(req, res) {
   var url = require('url');
   var url_parts = url.parse(req.url, true);
   var query = url_parts.query;
   var to = req.params.to;
+  var subject = req.params.subject;
+  var msg = req.params.message;
   var secret = query.whereTheQuestionsWhereTheAnswers;
 
 console.log('to='+to);
@@ -40,9 +42,9 @@ var transporter = nodemailer.createTransport({
 var mailOptions = {
     from: 'Hop Hey ✔ <HopHey@gmail.com>', // sender address
     to: to, // list of receivers
-    subject: 'Hello ✔', // Subject line
-    text: 'Hello world ✔', // plaintext body
-    html: '<b>Hello world ✔</b>' // html body
+    subject: subject, // Subject line
+    text: message, // plaintext body
+    //html: '<b>Hello world ✔</b>' // html body
 };
 
 // send mail with defined transport object
