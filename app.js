@@ -6,6 +6,10 @@ port = process.env.PORT || 1111;
 console.log('express server listenning on port: %d', port);
 var nodemailer = require('nodemailer');
 
+app.get('/', function(req, res) {
+  res.send('how are you doing?');
+});
+
 app.get('/:to', function(req, res) {
   var url = require('url');
   var url_parts = url.parse(req.url, true);
