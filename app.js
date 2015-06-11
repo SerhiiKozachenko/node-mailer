@@ -1,71 +1,81 @@
-var express = require('express'),
-app = express(),
-port = process.env.PORT || 1111;
-
+// used modules
+var express = require('express');
 var cors = require('cors');
+var nodemailer = require('nodemailer');
+var bodyParser = require('body-parser');
 
-var whitelist = ['https://grievoushead.github.io', 'http://grievoushead.github.io'];
+// global vars
+var app = express();
+var port = process.env.PORT || 1111;
+// allowed domains
+var whitelist = [
+  'https://grievoushead.github.io',
+  'http://grievoushead.github.io',
+  'http://localhost:4321'
+];
+
+// email sending transport
+var transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASS
+  }
+});
+
+// cors
 var corsOptions = {
   origin: function(origin, callback){
     var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+    console.log('Is origin allowed: ' + originIsWhitelisted);
     callback(null, originIsWhitelisted);
   }
 };
 
-//app.use(express.static(__dirname + '/'));
-console.log('express server listenning on port: %d', port);
-var nodemailer = require('nodemailer');
-
-app.get('/', function(req, res) {
+// routes
+app.get('/', function(req, res, next) {
   res.send('how are you doing?');
+  res.end();
 });
 
-app.get('/:to/:subject/:message', cors(corsOptions), function(req, res) {
-  var url = require('url');
-  var url_parts = url.parse(req.url, true);
-  var query = url_parts.query;
+app.options('/:to', cors(corsOptions));
+
+app.put('/:to', cors(corsOptions), bodyParser.json(), function(req, res) {
+
   var to = req.params.to;
-  var subject = req.params.subject;
-  var msg = req.params.message;
-  var secret = query.whereTheQuestionsWhereTheAnswers;
+  var subject = req.body.subject;
+  var message = req.body.message;
+  var secret = req.get('whereTheQuestionsWhereTheAnswers');
 
-console.log('to='+to);
-console.log('secret='+secret);
-if (!to || !secret || secret !== process.env.SECRET) {
-  res.send('by by world');
-  return;
-}
+  if (!to || !subject || !message || !secret || secret !== process.env.SECRET) {
+    res.status(400);
+    console.log('to: ' + to);
+    console.log('subject: ' + subject);
+    console.log('message: ' + message);
+    console.log('secret: ' + secret);
+    res.end();
+    return;
+  }
 
-// create reusable transporter object using SMTP transport
-var transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS
-    }
+  var mailOptions = {
+      from: 'Hop Hey ✔ <HopHey@gmail.com>',
+      to: 'wbserg@gmail.com, ' + to,
+      subject: subject,
+      text: message,
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+      if(error){
+          console.log(error);
+      }else{
+          console.log('Message sent: ' + info.response);
+      }
+  });
+
+  res.status(200);
+  res.end();
 });
 
-// NB! No need to recreate the transporter object. You can use
-// the same transporter object for all e-mails
-
-// setup e-mail data with unicode symbols
-var mailOptions = {
-    from: 'Hop Hey ✔ <HopHey@gmail.com>', // sender address
-    to: 'wbserg@gmail.com, ' + to, // list of receivers
-    subject: subject, // Subject line
-    text: msg, // plaintext body
-    //html: '<b>Hello world ✔</b>' // html body
-};
-
-// send mail with defined transport object
-transporter.sendMail(mailOptions, function(error, info){
-    if(error){
-        console.log(error);
-    }else{
-        console.log('Message sent: ' + info.response);
-    }
-});
-  res.send('world hello');
-});
-
+console.log('express server listenning on port: %d', port);
+// start app
 app.listen(port);
