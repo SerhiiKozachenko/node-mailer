@@ -59,7 +59,7 @@ app.put('/:to', cors(corsOptions), bodyParser.json(), function(req, res) {
 
   var mailOptions = {
       from: 'Hop Hey ✔ <HopHey@gmail.com>',
-      to: 'wbserg@gmail.com, ' + to,
+      to: to,
       subject: subject,
       html: message,
   };
