@@ -61,7 +61,7 @@ app.put('/:to', cors(corsOptions), bodyParser.json(), function(req, res) {
       from: 'Hop Hey ✔ <HopHey@gmail.com>',
       to: 'wbserg@gmail.com, ' + to,
       subject: subject,
-      text: message,
+      html: message,
   };
 
   transporter.sendMail(mailOptions, function(error, info){
